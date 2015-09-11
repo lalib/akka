@@ -102,7 +102,14 @@ about successful state changes by publishing events.
 
 When persisting events with ``persist`` it is guaranteed that the persistent actor will not receive further commands between
 the ``persist`` call and the execution(s) of the associated event handler. This also holds for multiple ``persist``
-calls in context of a single command.
+calls in context of a single command. Incoming messages are :ref:`stashed <stash-scala>` until the ``persist``
+is completed. You should be careful to not send more messages to a persistent actor than it can keep up with,
+otherwise the number of stashed messages will grow. It can be wise to protect against `OutOfMemoryError`
+by defining a maximum stash capacity in the mailbox configuration.
+
+.. code-block:: ruby
+
+    akka.actor.default-mailbox.stash-capacity=10000  
 
 If persistence of an event fails, ``onPersistFailure`` will be invoked (logging the error by default)
 and the actor will unconditionally be stopped. If persistence of an event is rejected before it is
